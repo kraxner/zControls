@@ -379,12 +379,14 @@ type
     FLockUpdate: Boolean;
     FObjectVisibility: TMemberVisibility;
     FIsSettingComponent: Boolean;
+    fSortItems: Boolean;
     procedure SetComponent(Value: TObject);
     function GetItemOrder(PItem: PPropItem): Integer;
     procedure SetSortByCategory(const Value: Boolean);
     procedure SetObjectVisibility(const Value: TMemberVisibility);
     function GetFloatPreference: TzFloatPreference;
     procedure SetFloatPreference(const Value: TzFloatPreference);
+    procedure SetSortItems(const Value: Boolean);
   protected
     procedure UpdateVisibleItems;
     procedure UpdateItems;
@@ -415,6 +417,7 @@ type
     property ObjectVisibility: TMemberVisibility read FObjectVisibility write SetObjectVisibility default mvPublic;
     property FloatPreference: TzFloatPreference read GetFloatPreference write SetFloatPreference;
     property OnAutoExpandItemOnInit: TPropItemEvent read FOnAutoExpandItemOnInit write FOnAutoExpandItemOnInit;
+    property SortItems: Boolean read fSortItems write SetSortItems default true;
   end;
 
   TzObjInspectorList = class(TzObjInspectorBase)
@@ -1454,6 +1457,11 @@ begin
   end;
 end;
 
+procedure TzObjInspectorBase.SetSortItems(const Value: Boolean);
+begin
+  fSortItems := Value;
+end;
+
 procedure TzObjInspectorBase.UpdateItems;
 var
   LCategory: TList<String>;
@@ -1717,7 +1725,9 @@ begin
   end
   else
     EnumProps(FComponent, nil, nil, FComponent.ToString, FComponent.ToString);
-  FItems.Sort;
+
+  if fSortItems then FItems.Sort;
+
   LCategory.Free;
 end;
 
