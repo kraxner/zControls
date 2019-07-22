@@ -1522,6 +1522,9 @@ var
 
   procedure EnumProps(AInstance: TObject; AParent, ACategory: PPropItem; QualifiedName, QualifiedType: string);
   var
+    Meth : TRttiMethod;
+    idx : Integer;
+    arrayValue : TValue;
     LPropList: TArray<TRttiProperty>;
     LProp: TRttiProperty;
     LQName, LQType: String;
@@ -1583,6 +1586,33 @@ var
         Allow := True;
         LQName := QualifiedName + '.' + LProp.Name;
         LQType := QualifiedType + '.' + LProp.PropertyType.ToString;
+
+        if (QualifiedType = 'TParam') then begin
+            LQName := '';
+            idx := 0;
+            while ((LQName = '') and (idx <= Length(LPropList)-1)) do begin
+               if LPropList[idx].Name = 'Name' then LQName := LPropList[idx].GetValue(aInstance).AsString;
+               Inc(idx);
+            end;
+            LQName := QualifiedName + '.' + LQName;
+        end;
+
+
+        Meth := LProp.PropertyType.GetMethod('ToArray');
+        if (Assigned(Meth)) then begin
+           arrayValue := Meth.invoke(LProp.GetValue(AInstance).AsObject, []);
+           Assert(arrayValue.IsArray);
+           for idx := 0 to arrayValue.GetArrayLength-1 do begin
+              EnumProps(arrayValue.GetArrayElement(idx).AsObject, AParent, ACategory, QualifiedName, arrayValue.GetArrayElement(idx).TypeInfo.Name);
+           end;
+           continue;
+        end;
+
+        if (LProp.PropertyType.ToString = 'TParam') then begin
+            EnumProps(LProp.GetValue(AInstance).AsObject, AParent, ACategory, LQName, LProp.PropertyType.ToString);
+            Continue;
+        end;
+
         L := -1;
         PCategory := ACategory;
         if (LMultiInstance) and (LComponent <> nil) and (AInstance = LComponent) then
@@ -3047,6 +3077,7 @@ var
   LSaveColor: TColor;
   LColor: TColor;
   HorzDotLeft: Integer;
+  readOnly : Boolean;
 begin
 
   if Index = GetFirstItemIndex then
@@ -3133,7 +3164,12 @@ begin
     if IsPropTypeDerivedFromClass(PItem^.Prop.PropertyType, TComponent) then
       Canvas.Font.Color := FReferencesColor;
 
-    if (not PItem.Prop.IsWritable) and (not PItem^.IsClass) then
+    readOnly := false;
+    if Assigned(FOnGetItemReadOnly) then
+      readOnly := FOnGetItemReadOnly(self, PItem);
+
+
+    if (not PItem.Prop.IsWritable or readOnly) and (not PItem^.IsClass) then
       Canvas.Font.Color := FReadOnlyColor;
 
     Canvas.Refresh;

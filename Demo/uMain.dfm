@@ -42,7 +42,7 @@ object Main: TMain
     ShowGridLines = False
     GridColor = clBlack
     SplitterColor = clGray
-    ReadOnlyColor = clGrayText
+    ReadOnlyColor = clMenuHighlight
     FixedSplitter = False
     ReadOnly = False
     TrackChange = False
@@ -55,6 +55,8 @@ object Main: TMain
     FloatPreference.MaxDigits = 2
     FloatPreference.ExpPrecision = 6
     OnBeforeAddItem = zObjectInspector1BeforeAddItem
+    OnGetItemReadOnly = zObjectInspector1GetItemReadOnly
+    OnGetItemFriendlyName = zObjectInspector1GetItemFriendlyName
   end
   object Panel1: TPanel
     Left = 0
@@ -98,6 +100,15 @@ object Main: TMain
       Caption = 'Multi Components'
       TabOrder = 2
       OnClick = BtnMultiComponentsClick
+    end
+    object OptSortByCategory: TCheckBox
+      Left = 592
+      Top = 16
+      Width = 97
+      Height = 17
+      Caption = 'sort by category'
+      TabOrder = 3
+      OnClick = OptSortByCategoryClick
     end
   end
   object Panel2: TPanel
