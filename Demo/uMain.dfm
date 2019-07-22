@@ -42,7 +42,7 @@ object Main: TMain
     ShowGridLines = False
     GridColor = clBlack
     SplitterColor = clGray
-    ReadOnlyColor = clMenuHighlight
+    ReadOnlyColor = clGrayText
     FixedSplitter = False
     ReadOnly = False
     TrackChange = False
