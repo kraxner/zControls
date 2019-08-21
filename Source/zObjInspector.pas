@@ -565,6 +565,7 @@ type
     FAllowSearch: Boolean;
     FCategoryColor: TColor;
     FCategoryTextColor: TColor;
+    FOnItemChanged: TItemSetValue;
     procedure CMSTYLECHANGED(var Message: TMessage); message CM_STYLECHANGED;
     procedure WMKILLFOCUS(var Msg: TWMKILLFOCUS); message WM_KILLFOCUS;
     procedure WMSETFOCUS(var Msg: TWMSetFocus); message WM_SETFOCUS;
@@ -659,6 +660,7 @@ type
     property ShowItemHint: Boolean read FShowItemHint write FShowItemHint;
     property OnGetItemReadOnly: TPropItemEvent read FOnGetItemReadOnly write FOnGetItemReadOnly;
     property OnItemSetValue: TItemSetValue read FOnItemSetValue write FOnItemSetValue;
+    property OnItemChanged: TItemSetValue read FOnItemChanged write FOnItemChanged;
     property OnCollapseItem: TPropItemEvent read FOnCollapseItem write FOnCollapseItem;
     property OnGetItemFriendlyName: TGetItemFriendlyNameEvent
       read FOnGetItemFriendlyName write FOnGetItemFriendlyName;
@@ -2429,6 +2431,7 @@ begin
   FValuesNeedHint := False;
   FOnGetItemReadOnly := nil;
   FOnItemSetValue := nil;
+  FOnItemChanged := nil;
   FOnExpandItem := nil;
   FOnCollapseItem := nil;
   FOnSelectItem := nil;
@@ -2647,6 +2650,8 @@ begin
     if PropItem.IsClass then
       { Must rebuild the list . }
       UpdateProperties();
+     if Assigned(FOnItemChanged) then
+       FOnItemChanged(Self, PropItem, Value);
   end;
   FPropInspEdit.UpdateEditText; // required on Result is True or False
   Invalidate;
